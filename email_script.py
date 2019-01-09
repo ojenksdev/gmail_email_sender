@@ -1,4 +1,4 @@
-# Script that sends email w/ attachments from a gmail account.
+# Script that sends plain text emails w/ or without attachments from a gmail account.
 
 import email, smtplib, ssl, getpass
 
@@ -9,8 +9,8 @@ from email.mime.text import MIMEText
 
 port = 465 # for SSL
 subject = input("Email subject: ")
-sender_email = input("Enter your email: ")
-reciever_email = input("Enter reciever email: ")
+sender_email = input("Enter your email address: ")
+reciever_email = input("Enter reciever email address: ")
 body = input("Enter email body: ")
 password = getpass.getpass(prompt="Password: ", stream=None) #IDLE has issue, still shows input. Use terminal!
 
@@ -24,31 +24,48 @@ message["Subject"] = subject
 # Add body to email
 message.attach(MIMEText(body, "plain"))
 
-filename = input("Enter exact document name \
-                 (make sure it's in the same directory as this script!):")
+prompt = "\n\n********INSTRUCTIONS FOR SENDING********"
+prompt += "\nEnter exact filename w/ file extension (ie: example.jpg)."
+prompt += "\nMake sure it's located in the same directory as the script!"
+prompt += "\nLeave blank to send without attachment."
+prompt += "\n\nEnter File: "
 
-# Open file in binary mode
-with open(filename, "rb") as attachment:
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment.read())
+filename = input(prompt)
 
-# Encode file in ASCII to send via email
-encoders.encode_base64(part)
+try:
+    if filename:
+        # Open file in binary mode
+        with open(filename, "rb") as attachment:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(attachment.read())
 
-# Add header as key/value pair
-part.add_header(
-    "Content-Disposition",
-    f"attachment; filename={filename}",
-    )
+        # Encode file in ASCII to send via email
+        encoders.encode_base64(part)
 
-# add attachment to message and convert to string
-message.attach(part)
-text = message.as_string()
+        # Add header as key/value pair
+        part.add_header(
+            "Content-Disposition",
+            f"attachment; filename={filename}",
+            )
 
+        # add attachment to message and convert to string
+        message.attach(part)
+        text = message.as_string()
+        print("file attached!")
+    else:
+        text = body
+        print("No filename provided....sending email")                
+except:
+    print("something went wrong")
+    pass
+
+try: 
 # Create a secure connection
-context = ssl.create_default_context()
-with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-    server.login(sender_email, password)
-    server.sendmail(sender_email, reciever_email, text)
-    
-    
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+        server.login(sender_email, password)
+        server.sendmail(sender_email, reciever_email, text)
+
+    print("Email sent!")
+except:
+    print("Something went wrong.")
