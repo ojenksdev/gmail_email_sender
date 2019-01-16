@@ -1,5 +1,6 @@
 # gmail_email_sender
-Python Script to send emails with attachments via command line. In order to use it simply add whatever attachment you want to send to the same directory as this script. 
+Python 3 Script to send emails with attachments via command line. In order to use it simply add whatever attachment you want to send to the same directory as this script. 
+
 
 NOTES: 
 If using a Mac, make sure you've run the Install Certificates.command file (just search for it with finder).
